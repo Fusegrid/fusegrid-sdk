@@ -1,0 +1,36 @@
+The Windows native exe reads this launch.txt file to run the Java program.
+It will first look next to itself, then in the Program.app\Contents\Resources\Java folder.
+The lines of text that matter are right beneath headings, everything else is a comment.
+
+The minimum Java version the program needs to run.
+==Version==
+1.5
+
+Where to set the working directory.
+Relative to where the exe is running, not where this launch.txt file is.
+A blank line makes the working directory the running exe's folder.
+==Working==
+FusegridSDK.app\\Contents\\Resources\\Java
+
+The package name of the Main class.
+Separate parts with forward slashes, not periods.
+==Main==
+org/mortbay/start/Main
+
+Parameters to start the Java virtual machine.
+Put each parameter on a single line.
+Don't put anything in this file after them.
+Don't end the file with a newline.
+==Java==
+-Dfusegrid.webappdir=var/webapps
+-Dfusegrid.webappname=default
+-Djava.awt.headless=true 
+-Djava.io.tmpdir=var/cache/jetty
+-Djava.library.path=usr/lib 
+-DSTART=etc/jetty/start.config 
+-Djetty.home=usr/share/jetty
+-Dconfig.home=etc/jetty
+-Djava.class.path=usr/share/jetty/lib/start.jar
+-Xms128m 
+-Xmx256m
+-Dsun.java.command=usr/share/jetty/lib/start.jar

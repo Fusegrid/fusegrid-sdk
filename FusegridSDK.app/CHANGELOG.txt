@@ -1,0 +1,23 @@
+0.9.5 public alpha:
+
+- Known Issues:
+    - Mac application bundle is broken - it will be back in action by v1
+
+- New Features:
+    - Added launch script for Linux
+    - Added support for Windows
+
+- Bug fixes:
+    - Increased Object creation performance
+    - Fixed memory problems
+    - Fixed log4 compatability
+
+
+0.9.1 alpha:
+
+- New Features:
+    - Added support for OSX 10.7 (Snow Leopard)
+
+0.9.1 alpha:
+
+- Initial Release

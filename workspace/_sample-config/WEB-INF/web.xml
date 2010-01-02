@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+
+    <display-name>Railo</display-name>
+    <servlet>
+        <servlet-name>CFMLServlet</servlet-name>
+        <servlet-class>railo.loader.servlet.CFMLServlet</servlet-class>
+        <init-param>
+          <param-name>configuration</param-name>
+          <param-value>/WEB-INF/railo/</param-value>
+        </init-param>    
+        <!-- init-param>
+          <param-name>railo-server-root</param-name>
+          <param-value>.</param-value>
+          <description>directory where railo root directory is stored</description>
+        </init-param -->
+        <load-on-startup>1</load-on-startup>
+    </servlet>    
+    <servlet>
+        <servlet-name>AMFServlet</servlet-name>
+        <servlet-class>railo.loader.servlet.AMFServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>    
+    <servlet>
+        <servlet-name>FileServlet</servlet-name>
+        <servlet-class>railo.loader.servlet.FileServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>     
+    
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>*.cfc</url-pattern> </servlet-mapping>
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>*.cfm</url-pattern> </servlet-mapping>
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>*.cfml</url-pattern> </servlet-mapping>
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>/index.cfm/*</url-pattern> </servlet-mapping>
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>/rewrite.cfm/*</url-pattern> </servlet-mapping>
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>/index.cfml/*</url-pattern> </servlet-mapping>
+    <servlet-mapping> <servlet-name>CFMLServlet</servlet-name> <url-pattern>/rewrite.cfml/*</url-pattern> </servlet-mapping>
+    
+    <servlet-mapping> 
+        <servlet-name>AMFServlet</servlet-name> 
+        <url-pattern>/flashservices/gateway/*</url-pattern> 
+    </servlet-mapping>
+    <servlet-mapping> 
+        <servlet-name>FileServlet</servlet-name> 
+        <url-pattern>/</url-pattern> 
+    </servlet-mapping>
+    
+    <filter>
+        <filter-name>UrlRewriteFilter</filter-name>
+        <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+
+        <!-- set the amount of seconds the conf file will be checked for reload
+        can be a valid integer (0 denotes check every time,
+        -1 denotes no reload check, default -1) -->
+        <init-param>
+            <param-name>confReloadCheckInterval</param-name>
+            <param-value>60</param-value>
+        </init-param>
+
+        <!-- if you need to the conf file path can be changed
+        it is specified as a path relative to the root of your context
+        (default /WEB-INF/urlrewrite.xml) -->
+        <init-param>
+            <param-name>confPath</param-name>
+            <param-value>/WEB-INF/urlrewrite.xml</param-value>
+        </init-param>
+
+        <!-- sets up log level (will be logged to context log)
+        can be: TRACE, DEBUG, INFO (default), WARN, ERROR, FATAL, log4j, commons, slf4j,
+        sysout:{level} (ie, sysout:DEBUG)
+        if you are having trouble using normal levels use sysout:DEBUG
+        (default WARN) -->
+        <init-param>
+            <param-name>logLevel</param-name>
+            <param-value>DEBUG</param-value>
+        </init-param>
+
+        <!-- you can change status path so that it does not
+        conflict with your installed apps (note, defaults
+        to /rewrite-status) note, must start with / -->
+        <init-param>
+            <param-name>statusPath</param-name>
+            <param-value>/status</param-value>
+        </init-param>
+
+        <!-- you can disable status page if desired
+        can be: true, false (default true) -->
+        <init-param>
+            <param-name>statusEnabled</param-name>
+            <param-value>true</param-value>
+        </init-param>
+
+        <!-- you may want to allow more hosts to look at the status page
+        statusEnabledOnHosts is a comma delimited list of hosts, * can
+        be used as a wildcard (defaults to "localhost, local, 127.0.0.1") -->
+        <init-param>
+            <param-name>statusEnabledOnHosts</param-name>
+            <param-value>localhost, dev.*.myco.com, *.uat.mycom.com</param-value>
+        </init-param>
+
+        <!-- you may want to allow more hosts to look at the status page
+        statusEnabledOnHosts is a comma delimited list of hosts, * can
+        be used as a wildcard (defaults to "localhost, local, 127.0.0.1") -->
+        <init-param>
+            <param-name>statusEnabledOnHosts</param-name>
+            <param-value>localhost, dev.*.myco.com, *.uat.mycom.com</param-value>
+        </init-param>
+
+        <!-- defaults to false. use mod_rewrite style configuration file (if this is true and confPath
+        is not specified confPath will be set to /WEB-INF/.htaccess) -->
+        <init-param>
+            <param-name>modRewriteConf</param-name>
+            <param-value>false</param-value>
+        </init-param>
+
+        <!-- load mod_rewrite style configuration from this parameter's value.
+                note, Setting this parameter will mean that all other conf parameters are ignored.
+            <init-param>
+                <param-name>modRewriteConfText</param-name>
+                <param-value>
+                    RewriteRule ^/~([^/]+)/?(.*) /u/$1/$2 [R]
+                    RewriteRule ^/([uge])/([^/]+)$ /$1/$2/ [R]
+                </param-value>
+            </init-param>
+        -->
+
+        <!-- defaults to false. allow conf file to be set by calling /rewrite-status/?conf=/WEB-INF/urlrewrite2.xml
+                designed to be used for testing only
+            <init-param>
+                <param-name>allowConfSwapViaHttp</param-name>
+                <param-value>false</param-value>
+            </init-param>
+        -->
+
+    </filter>
+
+    <filter-mapping>
+       <filter-name>UrlRewriteFilter</filter-name>
+       <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <welcome-file-list>
+        <welcome-file>index.cfm</welcome-file>
+        <welcome-file>index.cfml</welcome-file>
+    </welcome-file-list>
+    
+</web-app>

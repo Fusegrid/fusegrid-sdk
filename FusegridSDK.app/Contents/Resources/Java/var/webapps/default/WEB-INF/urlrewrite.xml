@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+ <!DOCTYPE urlrewrite
+     PUBLIC "-//tuckey.org//DTD UrlRewrite 3.0//EN"
+     "http://tuckey.org/res/dtds/urlrewrite3.0.dtd">
+
+<urlrewrite>
+	<rule>
+		<condition type="request-uri" operator="notequal">
+^/(flex2gateway|jrunscripts|cfide|cfformgateway|railo-context|files|images|javascripts|miscellaneous|stylesheets|public|rewrite.cfm|index.cfm)
+		</condition>
+    	<from>^/(.*)$</from>
+		<to type="passthrough" last="true">/index.cfm/$1</to>
+ 	</rule>
+</urlrewrite>

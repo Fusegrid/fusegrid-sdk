@@ -1,0 +1,229 @@
+<?xml version="1.0"?> 
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure 1.2//EN" "http://jetty.mortbay.org/configure_1_2.dtd">
+
+
+
+<!-- =============================================================== -->
+<!-- Configure the Jetty Server                                      -->
+<!-- =============================================================== -->
+<Configure class="org.mortbay.jetty.Server">
+
+  <Call class="org.apache.commons.logging.LogFactory" name="getFactory">
+    <Call name="getInstance">
+      <Arg/>
+      <Call name="reset"/>
+      <Call name="add">
+        <Arg>
+          <New class="org.mortbay.log.OutputStreamLogSink">
+            <Set name="filename"><SystemProperty name="jetty.home" default="." />/logs/jetty_yyyy_mm_dd.log</Set>
+            <Set name="retainDays">90</Set>
+            <Set name="append">true</Set>
+            <Set name="logLabels">true</Set>
+            <Set name="logStackSize">true</Set>
+            <Set name="logStackTrace">false</Set>
+            <Set name="logOneLine">false</Set>
+            <Set name="suppressStack">false</Set>
+            <Set name="logTimeZone">GMT</Set>
+          </New>
+        </Arg>
+      </Call>
+    </Call>
+  </Call>
+
+  <!-- =============================================================== -->
+  <!-- Configure the Request Listeners                                 -->
+  <!-- =============================================================== -->
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Add and configure a HTTP listener to port 8280                  -->
+  <!-- The default port can be changed using: java -Djetty.port=80     -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.SocketListener">
+        <Set name="Port"><SystemProperty name="jetty.port" default="8280"/></Set>
+        <Set name="MinThreads">10</Set>
+        <Set name="MaxThreads">100</Set>
+        <Set name="MaxIdleTimeMs">30000</Set>
+        <Set name="LowResourcePersistTimeMs">5000</Set>
+        <Set name="ConfidentialPort">8443</Set>
+        <Set name="IntegralPort">8443</Set>
+      </New>
+    </Arg>
+  </Call>
+
+
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Add a HTTPS SSL listener on port 8443                           -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- UNCOMMENT TO ACTIVATE
+  <Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.SunJsseListener">
+        <Set name="Port">8443</Set>
+        <Set name="MinThreads">5</Set>
+        <Set name="MaxThreads">100</Set>
+        <Set name="MaxIdleTimeMs">30000</Set>
+        <Set name="LowResourcePersistTimeMs">2000</Set>
+        <Set name="Keystore">/etc/demokeystore</Set>
+	<Set name="Password">OBF:1vny1zlo1x8e1vnw1vn61x8g1zlu1vn4</Set>
+	<Set name="KeyPassword">OBF:1u2u1wml1z7s1z7a1wnl1u2g</Set>
+      </New>
+    </Arg>
+  </Call>
+  -->
+
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Add a AJP13 listener on port 8209                               -->
+  <!-- This protocol can be used with mod_jk in apache, IIS etc.       -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- UNCOMMENT TO ACTIVATE
+  <Call name="addListener">
+    <Arg>
+      <New class="org.mortbay.http.ajp.AJP13Listener">
+        <Set name="Host">127.0.0.1</Set>
+        <Set name="Port">8209</Set>
+        <Set name="MinThreads">5</Set>
+        <Set name="MaxThreads">20</Set>
+        <Set name="MaxIdleTimeMs">0</Set>
+        <Set name="confidentialPort">443</Set>
+      </New>
+    </Arg>
+  </Call>
+  -->
+
+
+  <!-- =============================================================== -->
+  <!-- Configure the Contexts                                          -->
+  <!-- =============================================================== -->
+
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Add a all web application within the webapps directory.         -->
+  <!-- + No virtual host specified                                     -->
+  <!-- + Look in the webapps directory relative to jetty.home or .     -->
+  <!-- + Use the webdefault.xml resource for the defaults descriptor   -->
+  <!-- + Upack the war file                                            -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  
+  <Call name="addWebApplication">
+    <Arg>/*</Arg>
+    <Arg><SystemProperty name="jetty.home" default="/usr/share/jetty"/>/webapps/railo</Arg>
+    <Arg>/etc/jetty/webdefault.xml</Arg>
+  </Call>
+  
+  -->
+  
+  <Set name="rootWebApp"><SystemProperty name="fusegrid.webappname" default="default"/></Set>
+  <Call name="addWebApplications">
+    <Arg></Arg>
+    <Arg><SystemProperty name="fusegrid.webappdir" default="."/>/</Arg>
+    <Arg><SystemProperty name="jetty.home" default="."/>/config/webdefault.xml</Arg>
+    <Arg type="boolean">true</Arg>
+  </Call>
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Add a/all web application within the debian webapps directory.  -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- UNCOMMENT TO ACTIVATE
+  <Call name="addWebApplications">
+    <Arg></Arg>
+    <Arg>/usr/share/java/webapps/</Arg>
+    <Arg>/etc/jetty/webdefault.xml</Arg>
+    <Arg type="boolean">false</Arg>
+  </Call>
+  -->
+
+  <Call name="addRealm">
+    <Arg>
+      <New class="org.mortbay.http.HashUserRealm">
+        <Arg>Jetty Admin Realm</Arg>
+        <Arg><SystemProperty name="jetty.home" default="."/>/config/adminRealm.properties</Arg>
+      </New>
+    </Arg>
+  </Call>
+
+  <Call name="addContext">
+    <Arg>/admin</Arg>   
+    <Set name="realmName">Jetty Admin Realm</Set>
+    <Set name="authenticator"><New class="org.mortbay.http.BasicAuthenticator"/></Set>
+   
+    <Call name="addHandler">
+      <Arg><New class="org.mortbay.http.handler.SecurityHandler"/></Arg>  
+    </Call>      
+    <Call name="addSecurityConstraint">
+       <Arg>/</Arg> 
+       <Arg><New class="org.mortbay.http.SecurityConstraint">
+              <Arg>Admin</Arg>
+              <Arg>server-administrator</Arg>
+       </New></Arg>
+    </Call>
+
+    <Call name="addServlet">
+      <Arg>Debug</Arg>
+      <Arg>/Debug/*</Arg>
+      <Arg>org.mortbay.servlet.Debug</Arg>
+    </Call>
+    <Call name="addServlet">
+      <Arg>Admin</Arg>
+      <Arg>/</Arg>
+      <Arg>org.mortbay.servlet.AdminServlet</Arg>
+    </Call>
+    <Call name="setAttribute">
+      <Arg>org.mortbay.http.HttpServer</Arg>
+      <Arg><Call name="getHttpServer"/></Arg>
+    </Call>
+  </Call>
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Build the javadoc context.                                      -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <Call name="addContext">
+    <Arg>/javadoc/*</Arg>
+    <Set name="ResourceBase">/usr/share/doc/jetty/api/</Set>
+    <Call name="addHandler">
+      <Arg><New class="org.mortbay.http.handler.ResourceHandler"/></Arg>
+    </Call>
+  </Call>
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Build the cgi-bin context.                                      -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <Call name="addContext">
+    <Arg>/cgi-bin/*</Arg>
+    <Set name="ResourceBase">/usr/lib/cgi-bin/</Set>
+    <Call name="addServlet">
+      <Arg>Common Gateway Interface</Arg>
+      <Arg>/</Arg>
+      <Arg>org.mortbay.servlet.CGI</Arg>
+      <!-- Set initParams for CGI -->
+      <Put name="Path">/bin:/usr/bin:/usr/local/bin</Put>
+      <!-- <Put name="commandPrefix">perl</Put> -->
+    </Call>
+  </Call>
+
+  <!-- =============================================================== -->
+  <!-- Configure the Request Log                                       -->
+  <!-- =============================================================== -->
+  <Set name="RequestLog">
+    <New class="org.mortbay.http.NCSARequestLog">
+      <Arg><SystemProperty name="jetty.home" default="." />/logs/request_yyyy_mm_dd.log</Arg>
+      <Set name="retainDays">90</Set>
+      <Set name="append">true</Set>
+      <Set name="extended">false</Set>
+      <Set name="buffered">false</Set>
+      <Set name="LogTimeZone">GMT</Set>
+    </New>
+  </Set>
+
+  <!-- =============================================================== -->
+  <!-- Configure the Other Server Options                              -->
+  <!-- =============================================================== -->
+  <Set name="requestsPerGC">2000</Set>
+  <Set name="statsOn">false</Set>
+
+</Configure>
+
+
