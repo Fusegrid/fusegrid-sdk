@@ -9,7 +9,7 @@ cd "FusegridSDK.app/Contents/Resources/Java"
 # Working directory for your WebApplications root ***
 # Defaults to 'var/webapps' in Java root {FusegridSDK.app/Contents/Resources/Java} ***
 
-WEBAPPDIR="var/webapps"
+WEBAPPDIR="../../../../workspace"
 
 # Name of the folder for your WebApplications webroot ***
 WEBAPPNAME="default"
@@ -133,11 +133,11 @@ else
   ARGUMENTS=$*
 fi
 
-${JAVA_PROGRAM_DIR}java -ea -Djava.awt.headless=true -Djava.io.tmpdir="var/cache/jetty" -Djava.library.path="lib" -DSTART="etc/jetty/start.config" -Djetty.home="usr/share/jetty" -Dfusegrid.webappdir=$WEBAPPDIR -Xms128M -Xmx256M $EXECUTABLE -jar usr/share/jetty/lib/start.jar etc/jetty/jetty.xml $ARGUMENTS
+${JAVA_PROGRAM_DIR}java -ea -Djava.awt.headless=true -Djava.io.tmpdir="var/cache/jetty" -Djava.library.path="lib" -DSTART="etc/jetty/start.config" -Djetty.home="usr/share/jetty" -Dfusegrid.webappdir=$WEBAPPDIR -Xms256M -Xmx256M $EXECUTABLE -jar usr/share/jetty/lib/start.jar etc/jetty/jetty.xml $ARGUMENTS
 
 if [ $? -ne 0 ]; then
   echo 
-  echo "Something went wrong with starting the Java program."
+  echo "FusegridSDK v0.9.5 has terminated, if this was unexpected:"
   echo "Maybe you're using the wrong version of Java?"
   echo "This program is tested against and works best with with Sun's JRE, Java 1.5+."
   echo "The version of Java in your PATH is:"

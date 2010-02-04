@@ -22,7 +22,7 @@ Put each parameter on a single line.
 Don't put anything in this file after them.
 Don't end the file with a newline.
 ==Java==
--Dfusegrid.webappdir=var/webapps
+-Dfusegrid.webappdir=../../../../workspace
 -Dfusegrid.webappname=default
 -Djava.awt.headless=true 
 -Djava.io.tmpdir=var/cache/jetty
@@ -31,6 +31,6 @@ Don't end the file with a newline.
 -Djetty.home=usr/share/jetty
 -Dconfig.home=etc/jetty
 -Djava.class.path=usr/share/jetty/lib/start.jar
--Xms128m 
+-Xms256m 
 -Xmx256m
 -Dsun.java.command=usr/share/jetty/lib/start.jar

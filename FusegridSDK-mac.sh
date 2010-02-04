@@ -5,7 +5,7 @@
 # Working directory for your WebApplications root
 # Defaults to 'var/webapps' in Java root {FusegridSDK.app/Contents/Resources/Java}
 
-fgWebappdir="var/webapps"
+fgWebappdir="../../../../workspace"
 
 # Name of the folder for your WebApplications webroot
 fgWebappname="default"
@@ -14,7 +14,7 @@ fgWebappname="default"
 fgXmx=256
 
 # Set the minimum RAM in Megabytes available to the JVM
-fgXms=128
+fgXms=256
 
 # END -- Configure your application
 
@@ -41,5 +41,11 @@ cd "FusegridSDK.app/Contents/Resources/Java"
 
 java -Djava.awt.headless=true -Dfusegrid.webappdir=$fgWebappdir -Dfusegrid.webappname=$fgWebappname -Djava.io.tmpdir=$fgCache -Djava.library.path=$fgJavalib -DSTART=$fgStartcfg -Djetty.home=$fgJettyhome -Dconfig.home=$fgConfhome -Djava.class.path=$fgJettyhome/lib/start.jar -Xms"$fgXms"m -Xmx"$fgXmx"m -jar "$fgJettyhome"/lib/start.jar
 
-echo "FusegridSDK v0.9.5 has shutdown! Hope it was expected? ..."
+echo 
+echo "FusegridSDK v0.9.5 has terminated, if this was unexpected:"
+echo "Maybe you're using the wrong version of Java?"
+echo "This program is tested against and works best with with Sun's JRE, Java 1.5+."
+echo "The version of Java in your PATH is:"
+java -version
+echo
 read
