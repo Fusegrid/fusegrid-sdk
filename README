@@ -1,7 +1,8 @@
-FusegridSDK 
-===========
-FusegridSDK provides a fast, lightweight, cross platform development enviroment to develop your CFML applications. Developing your CFML apps on the FusegridSDK will ensure a simple transition to the Fusegrid Cloud. Documentation and downloads are
-available at http://www.fusegrid.com/sdk
+Fusegrid SDK 
+============
 
-FusegridSDK is licensed under the Apache Licence, Version 2.0
-(http://www.apache.org/licenses/LICENSE-2.0.html).
+Fusegrid SDK provides a fast, lightweight, cross platform development environment to develop your CFML applications. Developing your CFML apps on the Fusegrid SDK will ensure a simple transition to the Fusegrid Cloud. Documentation and downloads are available at http://www.fusegrid.com/sdk.
+ 
+Fusegrid SDK is distributed under the terms of the GPLv2 License (http://creativecommons.org/licenses/GPL/2.0/)
+
+"Fusegrid", "Fusegrid SDK", and the Fusegrid logo are copyright Cariboo Media 2009. All rights reserved.
