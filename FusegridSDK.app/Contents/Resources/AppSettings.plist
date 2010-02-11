@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AppPathAsFirstArg</key>
-	<false/>
+	<true/>
 	<key>Creator</key>
 	<string>Platypus-4.2</string>
 	<key>InterpreterParams</key>
@@ -13,7 +13,7 @@
 	<key>OutputType</key>
 	<string>Progress Bar</string>
 	<key>RemainRunningAfterCompletion</key>
-	<true/>
+	<false/>
 	<key>RequiresAdminPrivileges</key>
 	<false/>
 	<key>ScriptInterpreter</key>
@@ -23,11 +23,11 @@
 	<key>TextBackground</key>
 	<string>#ffffff</string>
 	<key>TextEncoding</key>
-	<integer>1</integer>
+	<integer>4</integer>
 	<key>TextFont</key>
-	<string>Monaco</string>
+	<string>Menlo-Regular</string>
 	<key>TextForeground</key>
-	<string>#000000</string>
+	<string>#eb6527</string>
 	<key>TextSize</key>
 	<real>10</real>
 </dict>

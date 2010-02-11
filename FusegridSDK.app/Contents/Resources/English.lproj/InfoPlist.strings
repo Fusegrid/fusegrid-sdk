@@ -1,4 +1,4 @@
 CFBundleName = "FusegridSDK";
 CFBundleShortVersionString = "0.9.5";
-CFBundleGetInfoString = "FusegridSDK version 0.9.5 Copyright 2009 Gavin McLelland";
-NSHumanReadableCopyright = "Copyright 2009 Gavin McLelland.";
+CFBundleGetInfoString = "FusegridSDK version 0.9.5 Copyright 2010 http://fusegrid.com/sdk";
+NSHumanReadableCopyright = "Copyright 2010 http://fusegrid.com/sdk.";

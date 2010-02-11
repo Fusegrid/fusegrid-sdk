@@ -9,11 +9,11 @@
 	<key>CFBundleExecutable</key>
 	<string>FusegridSDK</string>
 	<key>CFBundleGetInfoString</key>
-	<string>FusegridSDK 0.9.5 Copyright 2009 Gavin McLelland</string>
+	<string>FusegridSDK 0.9.5 Copyright 2010 http://fusegrid.com/sdk</string>
 	<key>CFBundleIconFile</key>
 	<string>appIcon.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.gavin.FusegridSDK</string>
+	<string>com.fusegrid.FusegridSDK</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -35,7 +35,7 @@
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHumanReadableCopyright</key>
-	<string>FusegridSDK 0.9.5 Copyright 2009 Gavin McLelland</string>
+	<string>FusegridSDK 0.9.5 Copyright 2010 http://fusegrid.com/sdk</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

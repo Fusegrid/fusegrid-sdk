@@ -1,4 +1,16 @@
-0.9.5 public alpha:
+0.9.5 beta:
+- Known Issues:
+    - ..
+
+- New Features:
+    - CFWheels added as the default CFML Framework
+
+
+- Bug fixes:
+    - ..
+
+
+0.9.4 public alpha:
 
 - Known Issues:
     - Mac application bundle is broken - it will be back in action by v1
@@ -10,7 +22,7 @@
 - Bug fixes:
     - Increased Object creation performance
     - Fixed memory problems
-    - Fixed log4 compatability
+    - Fixed log4 compatibility
 
 
 0.9.1 alpha:
