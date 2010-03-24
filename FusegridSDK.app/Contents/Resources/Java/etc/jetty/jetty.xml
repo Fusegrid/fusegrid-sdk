@@ -106,15 +106,7 @@
   <!-- + Look in the webapps directory relative to jetty.home or .     -->
   <!-- + Use the webdefault.xml resource for the defaults descriptor   -->
   <!-- + Upack the war file                                            -->
-  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-  
-  <Call name="addWebApplication">
-    <Arg>/*</Arg>
-    <Arg><SystemProperty name="jetty.home" default="/usr/share/jetty"/>/webapps/railo</Arg>
-    <Arg>/etc/jetty/webdefault.xml</Arg>
-  </Call>
-  
-  -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
   
   <Set name="rootWebApp"><SystemProperty name="fusegrid.webappname" default="default"/></Set>
   <Call name="addWebApplications">
@@ -146,7 +138,7 @@
   </Call>
 
   <Call name="addContext">
-    <Arg>/admin</Arg>   
+    <Arg>/http-context</Arg>   
     <Set name="realmName">Jetty Admin Realm</Set>
     <Set name="authenticator"><New class="org.mortbay.http.BasicAuthenticator"/></Set>
    
@@ -174,17 +166,6 @@
     <Call name="setAttribute">
       <Arg>org.mortbay.http.HttpServer</Arg>
       <Arg><Call name="getHttpServer"/></Arg>
-    </Call>
-  </Call>
-
-  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-  <!-- Build the javadoc context.                                      -->
-  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
-  <Call name="addContext">
-    <Arg>/javadoc/*</Arg>
-    <Set name="ResourceBase">/usr/share/doc/jetty/api/</Set>
-    <Call name="addHandler">
-      <Arg><New class="org.mortbay.http.handler.ResourceHandler"/></Arg>
     </Call>
   </Call>
 
