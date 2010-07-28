@@ -1,200 +1,186 @@
-<cffunction name="isGet" returntype="boolean" access="public" output="false"
-	hint="Returns whether the request was a normal (GET) request or not."
+<!--- PUBLIC CONTROLLER REQUEST FUNCTIONS --->
+<cffunction name="sendEmail" returntype="any" access="public" output="false" hint="Sends an email using a template and an optional layout to wrap it in. Besides the Wheels specific arguments you can also pass in any argument that is accepted by the `cfmail` tag."
 	examples=
 	'
-		<cfset requestIsGet = isGet()>
+		<!--- Get a member and send a welcome email passing in a few custom variables to the template --->
+		<cfset newMember = model("member").findByKey(params.key)>
+		<cfset sendEmail(to=newMember.email, template="myemailtemplate", subject="Thank You for Becoming a Member", recipientName=newMember.name, startDate=newMember.startDate)>
 	'
-	categories="controller-request" chapters="" functions="isAjax,isPost">
-	<cfscript>
-		var returnValue = "";
-		if (request.cgi.request_method == "get")
-			returnValue = true;
-		else
-			returnValue = false;
-	</cfscript>
-	<cfreturn returnValue>
-</cffunction>
-
-<cffunction name="isPost" returntype="boolean" access="public" output="false"
-	hint="Returns whether the request came from a form submission or not."
-	examples=
-	'
-		<cfset requestIsPost = isPost()>
-	'
-	categories="controller-request" chapters="" functions="isAjax,isGet">
-	<cfscript>
-		var returnValue = "";
-		if (request.cgi.request_method == "post")
-			returnValue = true;
-		else
-			returnValue = false;
-	</cfscript>
-	<cfreturn returnValue>
-</cffunction>
-
-<cffunction name="isAjax" returntype="boolean" access="public" output="false"
-	hint="Returns whether the page was called from JavaScript or not."
-	examples=
-	'
-		<cfset requestIsAjax = isAjax()>
-	'
-	categories="controller-request" chapters="" functions="isGet,isPost">
-	<cfscript>
-		var returnValue = "";
-		if (request.cgi.http_x_requested_with == "XMLHTTPRequest")
-			returnValue = true;
-		else
-			returnValue = false;
-	</cfscript>
-	<cfreturn returnValue>
-</cffunction>
-
-<cffunction name="sendEmail" returntype="void" access="public" output="false"
-	hint="Sends an email using a template and an optional layout to wrap it in."
-	examples=
-	'
-		<cfset sendEmail("myemailtemplate")>
-
-		<cfset member = model("member").findByKey(newMember.id)>
-		<cfset sendEmail(to=member.email, template="myemailtemplate", subject="Thank You for Becoming a Member", recipientName=member.name, startDate=member.startDate)>
-	'
-	categories="controller-request" chapters="sending-email" functions="">
-	<cfargument name="templates" type="string" required="false" default="" hint="The path to the email template or two paths if you want to send a multipart email. if the `detectMultipart` argument is `false` the template for the text version should be the first one in the list (can also be called with the `template` argument).">
-	<cfargument name="from" type="string" required="true" hint="Email address to send from">
-	<cfargument name="to" type="string" required="true" hint="Email address to send to">
-	<cfargument name="subject" type="string" required="true" hint="The subject line of the email">
-	<cfargument name="layouts" type="any" required="false" default="#application.wheels.functions.sendEmail.layouts#" hint="Layout(s) to wrap body in">
-	<cfargument name="detectMultipart" type="boolean" required="false" default="#application.wheels.functions.sendEmail.detectMultipart#" hint="When set to `true` Wheels will detect which of the templates is text and which one is html (by counting the `<` characters)">
+	categories="controller-request,miscellaneous" chapters="sending-email" functions="">
+	<cfargument name="template" type="string" required="false" default="" hint="The path to the email template or two paths if you want to send a multipart email. if the `detectMultipart` argument is `false` the template for the text version should be the first one in the list. This argument is also aliased as `templates`.">
+	<cfargument name="from" type="string" required="true" hint="Email address to send from.">
+	<cfargument name="to" type="string" required="true" hint="Email address to send to.">
+	<cfargument name="subject" type="string" required="true" hint="The subject line of the email.">
+	<cfargument name="layout" type="any" required="false" hint="Layout(s) to wrap the email template in. This argument is also aliased as `layouts`.">
+	<cfargument name="file" type="string" required="false" default="" hint="The name(s) of the file(s) to attach to the email. This argument is also aliased as `files`.">
+	<cfargument name="detectMultipart" type="boolean" required="false" hint="When set to `true` and multiple templates are passed in Wheels will detect which of the templates is text and which one is HTML (by counting the `<` characters).">
+	<cfargument name="$deliver" type="boolean" required="false" default="true">
 	<cfscript>
 		var loc = {};
+		$args(args=arguments, name="sendEmail", combine="template/templates/!,layout/layouts,file/files");
 
-		if (StructKeyExists(arguments, "template"))
-			arguments.templates = arguments.template;
-		if (StructKeyExists(arguments, "layout"))
-			arguments.layouts = arguments.layout;
-		$insertDefaults(name="sendEmail", input=arguments);
+		loc.nonPassThruArgs = "template,templates,layout,layouts,file,files,detectMultipart,$deliver";
+		loc.mailTagArgs = "from,to,bcc,cc,charset,debug,failto,group,groupcasesensitive,mailerid,maxrows,mimeattach,password,port,priority,query,replyto,server,spoolenable,startrow,subject,timeout,type,username,useSSL,useTLS,wraptext";
+		loc.deliver = arguments.$deliver;
 
-		if (application.wheels.showErrorInformation)
-		{
-			if (!StructKeyExists(arguments, "template") && !Len(arguments.templates))
-				$throw(type="Wheels.IncorrectArguments", message="The `template` or `templates` argument is required but was not passed in.");
-		}
+		// if two templates but only one layout was passed in we set the same layout to be used on both
+		if (ListLen(arguments.template) > 1 && ListLen(arguments.layout) == 1)
+			arguments.layout = ListAppend(arguments.layout, arguments.layout);
 
-		if (ListLen(arguments.templates) > 1 && ListLen(arguments.layouts) == 1)
-			arguments.layouts = ListAppend(arguments.layouts, arguments.layouts);
-
-		// set the variables that should be available to the email view template
+		// set the variables that should be available to the email view template (i.e. the custom named arguments passed in by the developer)
 		for (loc.key in arguments)
 		{
-			if (!ListFindNoCase("template,templates,layout,layouts,detectMultipart", loc.key) && !ListFindNoCase("from,to,bcc,cc,charset,debug,failto,group,groupcasesensitive,mailerid,maxrows,mimeattach,password,port,priority,query,replyto,server,spoolenable,startrow,subject,timeout,type,username,useSSL,useTLS,wraptext", loc.key))
+			if (!ListFindNoCase(loc.nonPassThruArgs, loc.key) && !ListFindNoCase(loc.mailTagArgs, loc.key))
 			{
 				variables[loc.key] = arguments[loc.key];
 				StructDelete(arguments, loc.key);
 			}
 		}
 
-		arguments.body = [];
-		loc.iEnd = ListLen(arguments.templates);
+		// get the content of the email templates and store them as cfmailparts
+		arguments.mailparts = [];
+		loc.iEnd = ListLen(arguments.template);
 		for (loc.i=1; loc.i <= loc.iEnd; loc.i++)
 		{
 			// include the email template and return it
-			loc.content = $renderPage($template=ListGetAt(arguments.templates, loc.i), $layout=ListGetAt(arguments.layouts, loc.i));
-			if (ArrayIsEmpty(arguments.body))
+			loc.content = $renderPage($template=ListGetAt(arguments.template, loc.i), $layout=ListGetAt(arguments.layout, loc.i));
+			loc.mailpart = {};
+			loc.mailpart.tagContent = loc.content;
+			if (ArrayIsEmpty(arguments.mailparts))
 			{
-				ArrayAppend(arguments.body, loc.content);
+				ArrayAppend(arguments.mailparts, loc.mailpart);
 			}
 			else
 			{
-				if (arguments.detectMultipart)
-				{
-					// make sure the text version is the first one in the array
-					loc.existingContentCount = ListLen(arguments.body[1], "<");
-					loc.newContentCount = ListLen(loc.content, "<");
-					if (loc.newContentCount < loc.existingContentCount)
-						ArrayPrepend(arguments.body, loc.content);
-					else
-						ArrayAppend(arguments.body, loc.content);
-				}
+				// make sure the text version is the first one in the array
+				loc.existingContentCount = ListLen(arguments.mailparts[1].tagContent, "<");
+				loc.newContentCount = ListLen(loc.content, "<");
+				if (loc.newContentCount < loc.existingContentCount)
+					ArrayPrepend(arguments.mailparts, loc.mailpart);
 				else
-				{
-					ArrayAppend(arguments.body, loc.content);
-				}
+					ArrayAppend(arguments.mailparts, loc.mailpart);
+				arguments.mailparts[1].type = "text";
+				arguments.mailparts[2].type = "html";
 			}
 		}
 
-		// delete arguments that we don't need to pass on to cfmail and send the email
-		StructDelete(arguments, "template");
-		StructDelete(arguments, "templates");
-		StructDelete(arguments, "layout");
-		StructDelete(arguments, "layouts");
-		StructDelete(arguments, "detectMultipart");
-		$mail(argumentCollection=arguments);
+		// figure out if the email should be sent as html or text when only one template is used and the developer did not specify the type explicitly
+		if (ArrayLen(arguments.mailparts) == 1)
+		{
+			arguments.tagContent = arguments.mailparts[1].tagContent;
+			StructDelete(arguments, "mailparts");
+			if (arguments.detectMultipart && !StructKeyExists(arguments, "type"))
+			{
+				if (Find("<", arguments.tagContent) && Find(">", arguments.tagContent))
+					arguments.type = "html";
+				else
+					arguments.type = "text";
+			}
+		}
+
+		// attach files using the cfmailparam tag
+		if (Len(arguments.file))
+		{
+			arguments.mailparams = [];
+			loc.iEnd = ListLen(arguments.file);
+			for (loc.i=1; loc.i <= loc.iEnd; loc.i++)
+			{
+				arguments.mailparams[loc.i] = {};
+				arguments.mailparams[loc.i].file = ExpandPath(application.wheels.filePath) & "/" & ListGetAt(arguments.file, loc.i);
+			}
+		}
+
+		// delete arguments that we don't want to pass through to the cfmail tag
+		loc.iEnd = ListLen(loc.nonPassThruArgs);
+		for (loc.i=1; loc.i <= loc.iEnd; loc.i++)
+			StructDelete(arguments, ListGetAt(loc.nonPassThruArgs, loc.i));
+
+		// send the email using the cfmail tag
+		if (loc.deliver)
+			$mail(argumentCollection=arguments);
+		else
+			return arguments;
 	</cfscript>
 </cffunction>
 
-<cffunction name="sendFile" returntype="void" access="public" output="false"
-	hint="Sends a file to the user."
+<cffunction name="sendFile" returntype="any" access="public" output="false" hint="Sends a file to the user (from the `files` folder by default)."
 	examples=
 	'
+		<!--- Send a PDF file to the user --->
 		<cfset sendFile(file="wheels_tutorial_20081028_J657D6HX.pdf")>
 
+		<!--- Send the same file but give the user a different name in the browser dialog window --->
 		<cfset sendFile(file="wheels_tutorial_20081028_J657D6HX.pdf", name="Tutorial.pdf")>
 
-		<cfset sendFile(file="wheels_tutorial_20081028_J657D6HX.pdf", disposition="inline")>
-
+		<!--- Send a file that is located outside of the web root --->
 		<cfset sendFile(file="../../tutorials/wheels_tutorial_20081028_J657D6HX.pdf")>
 	'
-	categories="controller-request" chapters="sending-files" functions="">
-	<cfargument name="file" type="string" required="true" hint="The file to send to the user">
-	<cfargument name="name" type="string" required="false" default="" hint="The file name to show in the browser download dialog box">
-	<cfargument name="type" type="string" required="false" default="" hint="The HTTP content type to deliver the file as">
-	<cfargument name="disposition" type="string" required="false" default="#application.wheels.functions.sendFile.disposition#" hint="Set to 'inline' to have the browser handle the opening of the file or set to 'attachment' to force a download dialog box">
+	categories="controller-request,miscellaneous" chapters="sending-files" functions="">
+	<cfargument name="file" type="string" required="true" hint="The file to send to the user.">
+	<cfargument name="name" type="string" required="false" default="" hint="The file name to show in the browser download dialog box.">
+	<cfargument name="type" type="string" required="false" default="" hint="The HTTP content type to deliver the file as.">
+	<cfargument name="disposition" type="string" required="false" hint="Set to 'inline' to have the browser handle the opening of the file or set to 'attachment' to force a download dialog box.">
+	<cfargument name="directory" type="string" required="false" default="" hint="Directory outside of the webroot where the file exists. Must be a full path.">
+	<cfargument name="deleteFile" type="boolean" required="false" default="false" hint="Pass in `true` to delete the file on the server after sending it.">
+	<cfargument name="$testingMode" type="boolean" required="false" default="false">
 	<cfscript>
 		var loc = {};
-		arguments.file = Replace(arguments.file, "\", "/", "all");
-		loc.path = Reverse(ListRest(Reverse(arguments.file), "/"));
-		loc.folder = application.wheels.filePath;
-		if (Len(loc.path))
+		$args(name="sendFile", args=arguments);
+
+		loc.folder = arguments.directory;
+		if (!Len(loc.folder))
+			loc.folder = ExpandPath(application.wheels.filePath);
+
+		loc.folder = Replace(loc.folder, "\", "/", "all");
+		loc.file = Replace(arguments.file, "\", "/", "all");
+
+		// extract the path from the file name
+		if (loc.file contains "/")
 		{
+			loc.path = Reverse(ListRest(Reverse(loc.file), "/"));
 			loc.folder = loc.folder & "/" & loc.path;
-			loc.file = Replace(arguments.file, loc.path, "");
+			loc.file = Replace(loc.file, loc.path, "");
 			loc.file = Right(loc.file, Len(loc.file)-1);
 		}
-		else
-		{
-			loc.file = arguments.file;
-		}
-		loc.folder = ExpandPath(loc.folder);
-		if (!FileExists(loc.folder & "/" & loc.file))
-		{
-			loc.match = $directory(action="list", directory=loc.folder, filter="#loc.file#.*");
-			if (loc.match.recordCount)
-				loc.file = loc.file & "." & ListLast(loc.match.name, ".");
-			else
-				$throw(type="Wheels.FileNotFound", message="A file could not be found.", extendedInfo="Make sure a file with the name `#loc.file#` exists in the `#loc.folder#` folder.");
-		}
+
 		loc.fullPath = loc.folder & "/" & loc.file;
+
+		// if the file is not found, try searching for it
+		if (!FileExists(loc.fullPath))
+		{
+			loc.match = $directory(action="list", directory="#loc.folder#", filter="#loc.file#.*");
+			// only extract the extension if we find a single match
+			if (loc.match.recordCount == 1)
+			{
+				loc.file = loc.file & "." & ListLast(loc.match.name, ".");
+				loc.fullPath = loc.folder & "/" & loc.file;
+			}
+			else
+			{
+				$throw(type="Wheels.FileNotFound", message="A file could not be found.", extendedInfo="Make sure a file with the name `#loc.file#` exists in the `#loc.folder#` folder.");
+			}
+		}
+
+		loc.name = loc.file;
+		loc.extension = ListLast(loc.file, ".");
+
+		// replace the display name for the file if supplied
 		if (Len(arguments.name))
 			loc.name = arguments.name;
-		else
-			loc.name = loc.file;
-		loc.extension = ListLast(loc.file, ".");
-		switch(loc.extension)
+
+		loc.mime = arguments.type;
+		if (!Len(loc.mime))
+			loc.mime = mimeTypes(loc.extension);
+
+		// if testing, return the variables
+		if (arguments.$testingMode)
 		{
-			case "txt": {loc.type = "text/plain"; break;}
-			case "gif": {loc.type = "image/gif"; break;}
-			case "jpg": case "jpeg": case "pjpeg": {loc.type = "image/jpg"; break;}
-			case "png": {loc.type = "image/png"; break;}
-			case "wav": {loc.type = "audio/wav"; break;}
-			case "mp3": {loc.type = "audio/mpeg3"; break;}
-			case "pdf": {loc.type = "application/pdf"; break;}
-			case "zip": {loc.type = "application/zip"; break;}
-			case "ppt": case "pptx": {loc.type = "application/powerpoint"; break;}
-			case "doc": case "docx": {loc.type = "application/word"; break;}
-			case "xls": case "xlsx": {loc.type = "application/excel"; break;}
- 			default: {loc.type = "application/octet-stream"; break;}
+			StructAppend(loc, arguments, false);
+			return loc;
 		}
+
+		// prompt the user to download the file
 		$header(name="content-disposition", value="#arguments.disposition#; filename=""#loc.name#""");
-		$content(type=loc.type, file=loc.fullPath);
+		$content(type="#loc.mime#", file="#loc.fullPath#", deleteFile="#arguments.deleteFile#");
 	</cfscript>
 </cffunction>
