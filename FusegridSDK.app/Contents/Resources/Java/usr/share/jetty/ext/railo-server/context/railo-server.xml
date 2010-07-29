@@ -40,6 +40,7 @@ Path placeholders:
 <!--	or ask your database distributor 																-->
 	<data-sources
 		preserve-single-quote="yes">
+		<data-source allow="511" blob="true" class="org.sqlite.JDBC" clob="true" connectionTimeout="1" custom="" database="" dsn="jdbc:sqlite:../../../../lib/sqlite/default.db" host="" name="default"/>
 	</data-sources>
 
 	<!--
