@@ -24,7 +24,7 @@ set fgConfhome=etc/jetty
 
 echo -- --- --- --- --- --- --- --- --- --
 echo -- --- --- --- --- --- --- --- --- --
-echo FusegridSDK v0.9.5 is now starting up
+echo FusegridSDK v0.9.8 is now starting up
 echo -- --- --- --- --- --- --- --- --- --
 echo		[CTRL-C] to Shutdown		  
 echo -- --- --- --- --- --- --- --- --- --
@@ -41,5 +41,5 @@ echo "Maybe you're using the wrong version of Java?"
 echo "This program is tested against and works best with with Sun's JRE, Java 1.5+."
 echo "The version of Java in your PATH is:"
 java -version
-echo
+echo "Press any key to continue or any other key to quit... no, No, NO, NOT THAT ONE!"
 pause

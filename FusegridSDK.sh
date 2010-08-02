@@ -137,10 +137,10 @@ ${JAVA_PROGRAM_DIR}java -ea -Djava.awt.headless=true -Djava.io.tmpdir="var/cache
 
 if [ $? -ne 0 ]; then
   echo 
-  echo "FusegridSDK v0.9.5 has terminated, if this was unexpected:"
+  echo "FusegridSDK v0.9.8 has terminated, if this was unexpected:"
   echo "Maybe you're using the wrong version of Java?"
   echo "This program is tested against and works best with with Sun's JRE, Java 1.5+."
   echo "The version of Java in your PATH is:"
   java -version
-  echo 
+  echo "Press any key to continue or any other key to quit... no, No, NO, NOT THAT ONE!"
 fi

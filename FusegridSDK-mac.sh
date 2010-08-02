@@ -29,7 +29,7 @@ fgConfhome="etc/jetty"
 
 echo "-- --- --- --- --- --- --- --- --- --"
 echo "-- --- --- --- --- --- --- --- --- --"
-echo "FusegridSDK v0.9.5 is now starting up"
+echo "FusegridSDK v0.9.8 is now starting up"
 echo "-- --- --- --- --- --- --- --- --- --"
 echo "         [CTRL-C] to Shutdown        "
 echo "-- --- --- --- --- --- --- --- --- --"
@@ -42,10 +42,10 @@ cd "FusegridSDK.app/Contents/Resources/Java"
 java -Djava.awt.headless=true -Dfusegrid.webappdir=$fgWebappdir -Dfusegrid.webappname=$fgWebappname -Djava.io.tmpdir=$fgCache -Djava.library.path=$fgJavalib -DSTART=$fgStartcfg -Djetty.home=$fgJettyhome -Dconfig.home=$fgConfhome -Djava.class.path=$fgJettyhome/lib/start.jar -Xms"$fgXms"m -Xmx"$fgXmx"m -jar "$fgJettyhome"/lib/start.jar
 
 echo 
-echo "FusegridSDK v0.9.5 has terminated, if this was unexpected:"
+echo "FusegridSDK v0.9.8 has terminated, if this was unexpected:"
 echo "Maybe you're using the wrong version of Java?"
 echo "This program is tested against and works best with with Sun's JRE, Java 1.5+."
 echo "The version of Java in your PATH is:"
 java -version
-echo
+echo "Press any key to continue or any other key to quit... no, No, NO, NOT THAT ONE!"
 read
