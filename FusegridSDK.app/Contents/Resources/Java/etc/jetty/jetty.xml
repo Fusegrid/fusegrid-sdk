@@ -138,7 +138,7 @@
   </Call>
 
   <Call name="addContext">
-    <Arg>/http-context</Arg>   
+    <Arg>/admin-context</Arg>   
     <Set name="realmName">Jetty Admin Realm</Set>
     <Set name="authenticator"><New class="org.mortbay.http.BasicAuthenticator"/></Set>
    
