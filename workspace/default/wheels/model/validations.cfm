@@ -346,7 +346,7 @@
 	<cfscript>
 		var returnValue = "";
 		// turn property names into lower cased words
-		returnValue = Replace(arguments.message, "[property]", LCase(variables.wheels.class.properties[arguments.property].label), "all");
+		returnValue = Replace(arguments.message, "[property]", LCase(this.$label(arguments.property)), "all");
 		// capitalize the first word in the property name if it comes first in the sentence
 		if (Left(arguments.message, 10) == "[property]")
 			returnValue = capitalize(returnValue);
@@ -515,7 +515,7 @@
 					loc.where = loc.where & "'";
 			}
 		}
-		
+
 		if (variables.wheels.class.softDeletion)
 			loc.where = loc.where & " AND " & variables.wheels.class.tableName & "." & variables.wheels.class.softDeleteColumn & " IS NULL";
 
