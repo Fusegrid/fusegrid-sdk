@@ -6,6 +6,12 @@
 *.iws
 .idea/
 
+# Eclipse Project Files #
+#########################
+
+.project
+.classpath
+
 # OS generated files #
 ######################
 
@@ -13,4 +19,4 @@
 ehthumbs.db
 Icon?
 Thumbs.db
-.project
+/.classpath
