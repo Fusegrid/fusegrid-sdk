@@ -7,6 +7,7 @@
 		variables.wheels.errors = [];
 		variables.wheels.class = {};
 		variables.wheels.class.modelName = arguments.name;
+		variables.wheels.class.modelId = hash(GetMetaData(this).name);
 		variables.wheels.class.path = arguments.path;
 
 		// if our name has pathing in it, remove it and add it to the end of of the $class.path variable
@@ -44,6 +45,9 @@
 		// run developer's init method if it exists
 		if (StructKeyExists(variables, "init"))
 			init();
+
+		// make sure that the tablename has the respected prefix
+		table(getTableNamePrefix() & tableName());
 
 		// load the database adapter
 		variables.wheels.class.adapter = $createObjectFromRoot(path="#application.wheels.wheelsComponentPath#", fileName="Connection", method="init", datasource="#variables.wheels.class.connection.datasource#", username="#variables.wheels.class.connection.username#", password="#variables.wheels.class.connection.password#");

@@ -1,3 +1,56 @@
+WHEELS VERSION 1.1.3 (UNRELEASED)
+
+View Enhancements
+=================
+* Allows for relative url linking to be turned off in autolink() - [James Gibson, Tony Petruzzi]
+
+Controller Enhancements
+=======================
+* Allow for default argument on sendmail for from, to and subject - #727 [Andy Bellenie, Tony Petruzzi]
+
+Model Enhancements
+==================
+* You can now have bracket markers for all validation arguments - #706 [Tony Petruzzi]
+* Columns marked as not null should allow for blank strings - [Tony Petruzzi]
+
+Bug Fixes
+=========
+* Fixed issue with $create supplying incorrect keys to $query - [Don Humphreys, Tony Petruzzi]
+* The original transaction mode would not be respected during during callbacks - [Andy Bellenie, Tony Petruzzi]
+* "none" transaction modes would never close - [Andy Bellenie, Tony Petruzzi]
+* Incorrect $cache argument - #671 [William Fisk, Tony Petruzzi]
+* Route formats prevented fullstops from being used in params - #666 [Tom King, Raul Riera, Tony Petruzzi]
+* Controller in params should be upper camel case - #703 [William Fisk, Tony Petruzzi]
+* Application scope would not initialize in sub - #721 [Adam Chapman, Tony Petruzzi]
+* ValidatesUniquenessOf doesn't read soft-deletes - #719 [Andy Bellenie, Tony Petruzzi]
+* PaginationLinks(): routes with page number marker variable would produce the wrong links - [Kenneth Barrett, Tony Petruzzi]
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+WHEELS VERSION 1.1.2 (01/29/2011)
+
+View Enhancements
+=================
+* Select, SelectTag allow an array of structs to be passed to options - #680 [William Fisk, Tony Petruzzi]
+
+Controller Enhancements
+=======================
+* Changed "default" argument on includeContent() to "defaultValue" - #663 [Tony Petruzzi]
+
+Model Enhancements
+==================
+* Add 'when' argument to validate() - #643 [Andy Bellenie, Tony Petruzzi]
+
+Bug Fixes
+=========
+* Added the varchar_ignorecase type to the H2 adapter - #664 [Per Djurner]
+* Fix so that the full tablename is always retuned - #667 [Tony Petruzzi]
+* Pagaination with parameterize set to false for numeric keys - #656 [levi730, Tony Petruzzi]
+* Blank should be the selected value when includeBlank is set - #633 [Tony Petruzzi]
+* validatesLengthOf failed when both maximum and minimum were specified - [Tony Petruzzi]
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 WHEELS VERSION 1.1.1
 
 Bug Fixes

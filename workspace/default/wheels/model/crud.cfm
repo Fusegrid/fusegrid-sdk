@@ -449,6 +449,7 @@
 			arguments.sql = $addWhereClause(sql=arguments.sql, where=arguments.where, include=arguments.include, includeSoftDeletes=arguments.includeSoftDeletes);
 			arguments.sql = $addWhereClauseParameters(sql=arguments.sql, where=arguments.where);
 			loc.returnValue = invokeWithTransaction(method="$updateAll", argumentCollection=arguments);
+			$closeTransaction(method="$updateall");
 		}
 	</cfscript>
 	<cfreturn loc.returnValue>
@@ -605,6 +606,7 @@
 			arguments.sql = $addWhereClause(sql=arguments.sql, where=arguments.where, include=arguments.include, includeSoftDeletes=arguments.includeSoftDeletes);
 			arguments.sql = $addWhereClauseParameters(sql=arguments.sql, where=arguments.where);
 			loc.returnValue = invokeWithTransaction(method="$deleteAll", argumentCollection=arguments);
+			$closeTransaction(method="$deleteall");
 		}
 	</cfscript>
 	<cfreturn loc.returnValue>
@@ -748,14 +750,16 @@
 <cffunction name="$delete" returntype="boolean" access="public" output="false">
 	<cfscript>
 		var loc = {};
+		loc.ret = false;
 		if ($callback("beforeDelete", arguments.callbacks))
 		{
 			$deleteDependents(); // delete dependents before the main record in case of foreign key constraints
 			loc.del = variables.wheels.class.adapter.$query(sql=arguments.sql, parameterize=arguments.parameterize);
 			if (loc.del.result.recordCount eq 1 and $callback("afterDelete", arguments.callbacks))
-				return true;
+				loc.ret = true;
 		}
-		return false;
+		$closeTransaction(method="$delete");
+		return loc.ret;
 	</cfscript>
 </cffunction>
 
@@ -821,6 +825,8 @@
 	<cfargument name="validate" type="boolean" required="true" />
 	<cfargument name="callbacks" type="boolean" required="true" />
 	<cfscript>
+		var loc = {};
+		loc.ret = false;
 		// make sure all of our associations are set properly before saving
 		$setAssociations();
 
@@ -834,7 +840,7 @@
 					if ($saveAssociations(argumentCollection=arguments) && $callback("afterCreate", arguments.callbacks) && $callback("afterSave", arguments.callbacks))
 					{
 						$updatePersistedProperties();
-						return true;
+						loc.ret = true;
 					}
 				}
 			}
@@ -846,13 +852,14 @@
 					if ($callback("afterUpdate", arguments.callbacks) && $callback("afterSave", arguments.callbacks))
 					{
 						$updatePersistedProperties();
-						return true;
+						loc.ret = true;
 					}
 				}
 			}
 		}
+		$closeTransaction(method="$save");
 	</cfscript>
-	<cfreturn false />
+	<cfreturn loc.ret />
 </cffunction>
 
 <cffunction name="update" returntype="boolean" access="public" output="false" hint="Updates the object with the supplied properties and saves it to the database. Returns `true` if the object was saved successfully to the database and `false` otherwise."
@@ -960,7 +967,7 @@
 			{
 				ArrayAppend(loc.sql, variables.wheels.class.properties[loc.key].column);
 				ArrayAppend(loc.sql, ",");
-				loc.param = {value=this[loc.key], type=variables.wheels.class.properties[loc.key].type, dataType=variables.wheels.class.properties[loc.key].dataType, scale=variables.wheels.class.properties[loc.key].scale, null=!len(this[loc.key])};
+				loc.param = $buildQueryParamValues(loc.key);
 				ArrayAppend(loc.sql2, loc.param);
 				ArrayAppend(loc.sql2, ",");
 			}
@@ -972,7 +979,14 @@
 		loc.iEnd = ArrayLen(loc.sql);
 		for (loc.i=1; loc.i <= loc.iEnd; loc.i++)
 			ArrayAppend(loc.sql, loc.sql2[loc.i]);
-		loc.ins = variables.wheels.class.adapter.$query(sql=loc.sql, parameterize=arguments.parameterize, $primaryKey=primaryKeys());
+
+		// map the primary keys down to the SQL columns before calling
+		loc.primaryKeys = ListToArray(primaryKeys());
+		loc.iEnd = ArrayLen(loc.primaryKeys);
+		for(loc.i = 1; loc.i LTE loc.iEnd; loc.i++)
+			loc.primaryKeys[loc.i] = variables.wheels.class.properties[loc.primaryKeys[loc.i]].column;
+
+		loc.ins = variables.wheels.class.adapter.$query(sql=loc.sql, parameterize=arguments.parameterize, $primaryKey=ArrayToList(loc.primaryKeys));
 		loc.generatedKey = variables.wheels.class.adapter.$generatedKey();
 		if (StructKeyExists(loc.ins.result, loc.generatedKey))
 			this[primaryKeys(1)] = loc.ins.result[loc.generatedKey];
@@ -997,7 +1011,7 @@
 			if (StructKeyExists(this, loc.key) && !ListFindNoCase(primaryKeys(), loc.key) && hasChanged(loc.key))
 			{
 				ArrayAppend(loc.sql, "#variables.wheels.class.properties[loc.key].column# = ");
-				loc.param = {value = this[loc.key], type = variables.wheels.class.properties[loc.key].type, dataType = variables.wheels.class.properties[loc.key].dataType, scale = variables.wheels.class.properties[loc.key].scale, null = !len(this[loc.key])};
+				loc.param = $buildQueryParamValues(loc.key);
 				ArrayAppend(loc.sql, loc.param);
 				ArrayAppend(loc.sql, ",");
 			}
@@ -1016,6 +1030,19 @@
 </cffunction>
 
 <!--- other --->
+
+<cffunction name="$buildQueryParamValues" returntype="struct" access="public" output="false">
+	<cfargument name="property" type="string" required="true">
+	<cfscript>
+	var ret = {};
+	ret.value = this[arguments.property];
+	ret.type = variables.wheels.class.properties[arguments.property].type;
+	ret.dataType = variables.wheels.class.properties[arguments.property].dataType;
+	ret.scale = variables.wheels.class.properties[arguments.property].scale;
+	ret.null = (!len(this[arguments.property]) && variables.wheels.class.properties[arguments.property].nullable);
+	return ret;
+	</cfscript>
+</cffunction>
 
 <cffunction name="$keyLengthCheck" returntype="void" access="public" output="false"
 	hint="Makes sure that the number of keys passed in is the same as the number of keys defined for the model. If not, an error is raised.">
